@@ -5,7 +5,7 @@ from torch.nn import functional as F
 from typing import Optional, List
 
 from .mobilenetv3 import MobileNetV3LargeEncoder
-from .resnet import ResNet50Encoder
+from .resnet import ResNext
 from .lraspp import LRASPP
 from .decoder import RecurrentDecoder, Projection
 from .fast_guided_filter import FastGuidedFilterRefiner
@@ -17,7 +17,7 @@ class MattingNetwork(nn.Module):
                  refiner: str = 'deep_guided_filter',
                  pretrained_backbone: bool = False):
         super().__init__()
-        assert variant in ['mobilenetv3', 'resnet50']
+        assert variant in ['mobilenetv3', 'resnext50']
         assert refiner in ['fast_guided_filter', 'deep_guided_filter']
         
         if variant == 'mobilenetv3':
@@ -25,7 +25,7 @@ class MattingNetwork(nn.Module):
             self.aspp = LRASPP(960, 128)
             self.decoder = RecurrentDecoder([16, 24, 40, 128], [80, 40, 32, 16])
         else:
-            self.backbone = ResNet50Encoder(pretrained_backbone)
+            self.backbone = ResNext(pretrained_backbone)
             self.aspp = LRASPP(2048, 256)
             self.decoder = RecurrentDecoder([64, 256, 512, 256], [128, 64, 32, 16])
             
